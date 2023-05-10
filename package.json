@@ -1,12 +1,12 @@
 {
-  "name": "api-turbo",
+  "name": "api-events",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "author": "YourYeti, Inc.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meetbigfoot/api-turbo.git"
+    "url": "git+https://github.com/meetbigfoot/api-events.git"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -14,6 +14,7 @@
   "scripts": {},
   "dependencies": {
     "@google-cloud/functions-framework": "^3.1.0",
-    "openai": "^3.2.1"
+    "dayjs": "^1.11.7",
+    "typesense": "^1.5.3"
   }
 }

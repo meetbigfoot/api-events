@@ -2,15 +2,15 @@
 
 ```
 npm i
-env-cmd npx functions-framework --target=turbo
+env-cmd npx functions-framework --target=events
 ```
 
 ## Deploy
 
 ```
-gcloud functions deploy turbo \
+gcloud functions deploy events \
 --allow-unauthenticated \
 --runtime=nodejs18 \
---update-env-vars OPENAI_API_KEY=PASTE_KEY_HERE \
+--update-env-vars TYPESENSE_API_KEY=PASTE_KEY_HERE \
 --trigger-http
 ```

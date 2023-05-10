@@ -1,12 +1,25 @@
 const functions = require('@google-cloud/functions-framework')
-const { Configuration, OpenAIApi } = require('openai')
+const Typesense = require('typesense')
+const dayjs = require('dayjs')
+const relativeTime = require('dayjs/plugin/relativeTime')
+dayjs.extend(relativeTime)
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+const typesense = new Typesense.Client({
+  nodes: [
+    {
+      host: 'sk89jvyb4o0c5d67p.a1.typesense.net',
+      port: '443',
+      protocol: 'https',
+    },
+  ],
+  apiKey: process.env.TYPESENSE_API_KEY,
 })
-const openai = new OpenAIApi(configuration)
 
-functions.http('turbo', async (req, res) => {
+const today = dayjs().startOf('day').unix()
+const twoWeeksFromToday = dayjs().add(14, 'days').startOf('day').unix()
+
+functions.http('events', async (req, res) => {
+  const { city, query } = req.body
   //cloud.google.com/functions/docs/samples/functions-http-cors#functions_http_cors-nodejs
   res.set('Access-Control-Allow-Origin', '*')
   if (req.method === 'OPTIONS') {
@@ -16,11 +29,17 @@ functions.http('turbo', async (req, res) => {
     res.status(204).send('')
   } else {
     try {
-      const completion = await openai.createChatCompletion({
-        model: 'gpt-3.5-turbo',
-        messages: req.body,
-      })
-      res.status(200).send(completion.data.choices[0].message.content)
+      const results = await typesense
+        .collections('experiences')
+        .documents()
+        .search({
+          filter_by: `city:${city} && date_start:>=${today} && date_end:<${twoWeeksFromToday}`,
+          per_page: 100,
+          sort_by: 'date_start:asc',
+          q: query || '',
+          query_by: 'title,description',
+        })
+      res.status(200).send(results)
     } catch (error) {
       res.status(500).send(error)
     }
